@@ -1,0 +1,106 @@
+---
+- name: apt-get update
+  apt: update_cache=true
+
+- name: Install base packages
+  apt:
+    pkg:
+    - alacritty
+    - bat
+    - binutils
+    - bzip2
+    - code
+    - containerd.io
+    - coreutils
+    - cpufrequtils
+    - diffutils
+    - docker-ce
+    - docker-ce-cli
+    - exfatprogs
+    - findutils
+    - fd-find
+    - fzf
+    - google-chrome-stable
+    - gnome-tweaks
+    - gnupg2
+    - gnupg-agent
+    - htop
+    - iwd
+    - jq
+    - light
+    - mesa-vulkan-drivers
+    - mpv
+    - neovim
+    - net-tools
+    - nmap
+    - papirus-icon-theme
+    - pciutils
+    - pinentry-gnome3
+    - powertop
+    - ripgrep
+    - tree
+    - scdaemon
+    - signal-desktop
+    - sslscan
+    - tailscale
+    - tcpdump
+    - ubuntu-restricted-extras
+    - uidmap
+    - usbutils
+    - whois
+    - yubikey-manager
+    - yubikey-personalization-gui
+    - zoxide
+    - zsh
+
+- name: Check if starship is installed
+  stat:
+    path: /usr/local/bin/starship
+  register: starship_binary
+  failed_when: false
+  changed_when: false
+
+- block:
+    - name: Downloading starship
+      get_url:
+        url: https://starship.rs/install.sh
+        dest: /tmp/starship-install.sh
+
+    - name: execute starship install script
+      script:
+        cmd: /tmp/starship-install.sh -y
+
+    - name: Remove starship install script
+      file: path=/tmp/starship-install.sh state=absent
+  when: not starship_binary.stat.exists
+
+- name: Install jammy version of ddcci-dkms
+  apt:
+    deb: http://fr.archive.ubuntu.com/ubuntu/pool/universe/d/ddcci-driver-linux/ddcci-dkms_0.4.1-3ubuntu1_all.deb
+
+- name: Check if oh-my-zsh is installed
+  stat:
+    path: "{{ ansible_env.HOME }}/.oh-my-zsh"
+  register: omz_dir
+  failed_when: false
+  changed_when: false
+
+- block:
+    - name: Downloading omz
+      get_url:
+        url: https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+        dest: /tmp/omz-install.sh
+
+    - name: execute starship install script
+      script:
+        cmd: /tmp/omz-install.sh --keep-zshrc
+      become: false
+
+    - name: Remove omz install script
+      file: path=/tmp/omz-install.sh state=absent
+  when: not omz_dir.stat.exists
+
+- name: Install python packages
+  pip:
+    name: psutil
+  become: false

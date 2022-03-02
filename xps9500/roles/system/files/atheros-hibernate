@@ -1,0 +1,22 @@
+#!/bin/bash
+case $1/$2 in
+  pre/*)
+    if [ $SYSTEMD_SLEEP_ACTION == "hibernate" ]; then
+      logger -t "systemd" -s "/usr/lib/systemd/system-sleep/atheros pre-hibernate"
+      systemctl stop iwd
+      modprobe -rf hci_uart
+      modprobe -rf ath11k_pci
+    fi
+    ;;
+  post/*)
+    if [ $SYSTEMD_SLEEP_ACTION == "hibernate" ]; then
+      logger -t "systemd" -s "/usr/lib/systemd/system-sleep/atheros post-hibernate"
+      modprobe ath11k_pci
+      modprobe hci_uart
+      systemctl start iwd
+    fi
+    ;;
+  */*)
+    logger -t "systemd" -s "/usr/lib/systemd/system-sleep/atheros $1/$2: $SYSTEMD_SLEEP_ACTION"
+    ;;
+esac

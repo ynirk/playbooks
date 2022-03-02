@@ -1,0 +1,29 @@
+---
+- name: Get Gnome Shell extension info
+  uri:
+    url: "https://extensions.gnome.org/extension-info/?pk={{ item }}&shell_version={{ gnome_shell_version }}"
+    return_content: yes
+  register: gnome_extension_info
+
+- name: "Check if Gnome Shell extension is already installed - {{ gnome_extension_info.json.name }}"
+  stat:
+    path: "{{ ansible_env.HOME }}/.local/share/gnome-shell/extensions/{{ gnome_extension_info.json.uuid }}/metadata.json"
+  register: gnome_shell_extension_path
+
+- block:
+
+  - name: "Create extension directory - {{ gnome_extension_info.json.name }}"
+    file:
+      path: "{{ ansible_env.HOME }}/.local/share/gnome-shell/extensions/{{ gnome_extension_info.json.uuid }}"
+      state: directory
+
+  - name: "Install extension - {{ gnome_extension_info.json.name }}"
+    unarchive:
+      src: "https://extensions.gnome.org{{ gnome_extension_info.json.download_url }}"
+      dest: "{{ ansible_env.HOME }}/.local/share/gnome-shell/extensions/{{ gnome_extension_info.json.uuid }}"
+      remote_src: yes
+
+  - name: "Enable Gnome Shell extension - {{ gnome_extension_info.json.name }}"
+    command: "gnome-shell-extension-tool --enable-extension {{ gnome_extension_info.json.uuid }}"
+
+  when: not gnome_shell_extension_path.stat.exists

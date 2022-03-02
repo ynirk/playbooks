@@ -1,0 +1,87 @@
+- name: Set dotfiles dir
+  set_fact:
+    dotfiles_dir: '{{ ansible_env.HOME }}/projects/github.com/dotfiles'
+
+- name: Set config dir
+  set_fact:
+    config_dir: '{{ ansible_env.HOME }}/.config'
+
+#- name: Clone dotfiles repo
+#  git:
+#    repo: https://github.com/ynirk/dotfiles
+#    dest: '{{ dotfiles_dir }}'
+
+- name: Install gpg configuration files
+  copy:
+    src: '{{ dotfiles_dir }}/gnupg/{{ item }}'
+    dest: '{{ ansible_env.HOME }}/.gnupg'
+  with_items:
+    - gpg-agent.conf
+    - gpg.conf
+
+- name: Install ynirk pgp key
+  shell: "curl https://keybase.io/ynirk/pgp_keys.asc | gpg --import"
+  changed_when: false
+
+- name: Install starship configuration
+  copy:
+    src: '{{ dotfiles_dir }}/starship/starship.toml'
+    dest: '{{ config_dir }}'
+
+- name: Install alacritty configuration
+  copy:
+    src: '{{ dotfiles_dir }}/alacritty'
+    dest: '{{ config_dir }}'
+
+- name: Install vscode extension
+  shell: 'code --install-extension {{ item }}'
+  with_items:
+    - arcticicestudio.nord-visual-studio-code
+  changed_when: false
+
+- name: Install vscode configuration
+  copy:
+    src: '{{ dotfiles_dir }}/vscode/settings.json'
+    dest: '{{ config_dir }}/Code/User'
+
+- name: Check if vim-plug is installed
+  stat:
+    path: '{{ config_dir }}/nvim/autoload'
+  register: vim_plug_dir
+  failed_when: false
+  changed_when: false
+
+- block:
+    - name: Create local directory
+      file:
+        path: '{{ config_dir }}/nvim/autoload'
+        state: directory
+
+    - name: Downloading vim-plug
+      get_url:
+        url: https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim
+        dest: '{{ config_dir }}/nvim/autoload/plug.vim'
+        mode: '0750'
+  when: not vim_plug_dir.stat.exists
+
+- name: Install neovim configuration
+  copy:
+    src: '{{ dotfiles_dir }}/nvim/init.vim'
+    dest: '{{ config_dir }}/nvim'
+
+- name: Install shell configuration files
+  copy:
+    src: '{{ dotfiles_dir }}/shell/{{ item }}'
+    dest: '{{ ansible_env.HOME }}'
+  with_items:
+    - .gitconfig
+    - .inputrc
+    - .functions
+    - .zshrc
+
+- name: Install applications files
+  copy:
+    src: '{{ dotfiles_dir }}/applications/{{ item }}'
+    dest: '{{ ansible_env.HOME }}/.local/share/applications'
+  with_items:
+    - com.alacritty.Alacritty.desktop

@@ -1,0 +1,91 @@
+- name: "Adding current user {{ ansible_env.USER }} to groups"
+  user:
+    name: "{{ ansible_env.USER }}"
+    groups: "{{ item }}"
+    append: yes
+  with_items:
+    - audio
+    - docker
+    - input
+    - kvm
+    - lpadmin
+    - plugdev
+    - systemd-journal
+    - users
+    - video
+  become: true
+
+- name: "Set gh git_protocol to SSH"
+  command: "gh config set git_protocol ssh"
+  changed_when: false
+
+- name: "Check if lingering is enabled for {{ ansible_env.USER }}"
+  stat:
+    path: "/var/lib/systemd/linger/{{ ansible_env.USER }}"
+  register: user_linger
+  failed_when: false
+  changed_when: false
+
+- name: "Enable lingering for {{ ansible_env.USER }}"
+  command: "loginctl enable-linger {{ ansible_env.USER }}"
+  become: true
+  when: not user_linger.stat.exists
+
+- name: Check if rootless docker is configured
+  stat:
+    path: "{{ ansible_env.XDG_RUNTIME_DIR }}/docker.sock"
+  register: docker_socket
+  failed_when: false
+  changed_when: false
+
+- block:
+  - name: Install docker rootless
+    command: "dockerd-rootless-setuptool.sh install --force"
+
+  - name: Set rootless mode by default
+    command: "docker context use rootless"
+  when: not docker_socket.stat.exists
+
+- name: Enable docker service for user
+  systemd:
+    name: docker
+    enabled: yes
+    state: started
+    scope: user
+
+- name: Create local directory
+  file:
+    path: "{{ ansible_env.HOME }}/.local/share/{{ item }}"
+    state: directory
+  with_items:
+    - fonts
+    - icons
+    - themes
+    - gnome-shell/extensions
+
+- name: Check if Fira Code nerd font is installed
+  shell: "ls {{ ansible_env.HOME }}/.local/share/fonts/Fira*Nerd*.ttf"
+  register: fira_nerd_installed
+  ignore_errors: true
+  changed_when: false
+
+- name: Install Fira Code nerd font
+  unarchive:
+    src: https://github.com/ryanoasis/nerd-fonts/releases/download/v2.1.0/FiraCode.zip
+    dest: "{{ ansible_env.HOME }}/.local/share/fonts"
+    remote_src: yes
+  when: fira_nerd_installed.rc != 0
+
+# download themes from https://www.gnome-look.org/p/1267246
+# Nordic-darker-standard-buttons -> ~/.local/share/themes/
+# Nordic-Folders/Nordic-Darker -> ~/.local/share/icons
+
+- include_tasks: gnome.yml
+
+- include_tasks: dotfiles.yml
+
+- name: "Ensure current user {{ ansible_env.USER }} shell is zsh"
+  user:
+    name: "{{ ansible_env.USER }}"
+    shell: /bin/zsh
+  become: true

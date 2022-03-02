@@ -1,0 +1,102 @@
+- name: Get swap partition uuid
+  shell: 'blkid | grep swap | cut -d" " -f2 | tr -d \"'
+  register: swap_uuid
+  changed_when: false
+
+- name: Set kernel boot options
+  command: kernelstub -a "resume={{ swap_uuid.stdout }} systemd.unified_cgroup_hierarchy=1 acpi_rev_override=1 intel_iommu=igfx_off i915.enable_psr=0 i915.enable_fbc=1 i915.enable_guc=2"
+  changed_when: false
+
+- name: Configure initramfs tools for hibernate
+  template:
+    src: templates/initramfs-tools-resume.j2
+    dest: /etc/initramfs-tools/conf.d/resume
+  register: initramfs_tools
+
+- name: Update initramfs
+  command: update-initramfs -u
+  when: initramfs_tools.changed
+
+- name: Copy hibernate script
+  copy:
+    src: files/atheros-hibernate
+    dest: /usr/lib/systemd/system-sleep/atheros-hibernate
+    mode: '0755'
+  register: hibernate_script
+
+- name: Change power key action
+  replace:
+    path: /etc/systemd/logind.conf
+    regexp: '^#HandlePowerKey=.*$'
+    replace: 'HandlePowerKey=lock'
+
+- name: Reload systemd
+  systemd:
+    daemon_reload: yes
+  when: hibernate_script.changed
+
+- name: Configure critical power action
+  replace:
+    path: /etc/UPower/UPower.conf
+    regexp: '^CriticalPowerAction=.*$'
+    replace: 'CriticalPowerAction=Hibernate'
+
+- name: Enable fstrimer
+  systemd:
+    name: fstrim.timer
+    enabled: yes
+    state: started
+
+- name: Get graphics mode
+  command: /usr/bin/system76-power graphics
+  register: graphics_cmd
+  changed_when: false
+
+- name: Set integrated graphics mode
+  command: /usr/bin/system76-power graphics integrated
+  when: graphics_cmd.stdout != "integrated"
+
+- name: Get power mode
+  command: /usr/bin/system76-power profile
+  register: power_cmd
+  changed_when: false
+
+- name: Set power setting to battery life
+  command: /usr/bin/system76-power profile battery
+  when: 'power_cmd.stdout_lines[0] == "Power Profile\: Battery"'
+
+- name: Configure iwd as wifi backend
+  copy:
+    src: files/iwd-wifi-backend.conf
+    dest: /etc/NetworkManager/conf.d/iwd-wifi-backend.conf
+  register: wifi_conf
+
+- name: Enable iwd
+  systemd:
+    name: iwd
+    enabled: yes
+    state: started
+
+- name: Disable wpa_supplicant
+  systemd:
+    name: wpa_supplicant
+    enabled: no
+    state: stopped
+    masked: yes
+
+- name: Restart network manager
+  service:
+    name: NetworkManager
+    state: restarted
+  when: wifi_conf.changed
+
+- name: Load ddcci modules
+  copy:
+    src: files/ddcci-backlight.conf
+    dest: /etc/modules-load.d/ddcci-backlight.conf
+
+- name: Enable rootless dmesg
+  replace:
+    path: /etc/sysctl.d/10-kernel-hardening.conf
+    regexp: '^# kernel.dmesg_restrict.*$'
+    replace: 'kernel.dmesg_restrict = 0'

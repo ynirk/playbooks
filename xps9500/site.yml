@@ -1,0 +1,8 @@
+---
+- name: "Configuring PoP OS on xps 9500"
+  hosts: localhost
+  connection: local
+  roles:
+    - { role: system, become: yes, tags: [system] }
+    - { role: extras, become: yes, tags: [extras] }
+    - { role: user, become: no, tags: [user] }

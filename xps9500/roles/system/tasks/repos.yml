@@ -1,0 +1,61 @@
+---
+- name: Download google-linux apt gpg key
+  apt_key:
+    url: "https://dl.google.com/linux/linux_signing_key.pub"
+    keyring: /usr/share/keyrings/google-linux-archive-keyring.gpg
+
+- name: Add google-chrome apt-repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/google-linux-archive-keyring.gpg] http://dl.google.com/linux/chrome/deb/ stable main"
+    filename: google-chrome
+
+- name: Download microsoft apt gpg key
+  apt_key:
+    url: https://packages.microsoft.com/keys/microsoft.asc
+    keyring: /usr/share/keyrings/microsoft-achive-keyring.gpg
+
+- name: Add vscode apt-repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft-achive-keyring.gpg] https://packages.microsoft.com/repos/code stable main"
+    filename: vscode
+
+- name: Download docker apt gpg key
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    keyring: /usr/share/keyrings/docker-achive-keyring.gpg
+
+- name: Add docker apt-repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-achive-keyring.gpg] https://download.docker.com/linux/ubuntu {{ ansible_distribution_release }} stable"
+    filename: docker
+
+- name: Download tailscale apt gpg key
+  apt_key:
+    url: "https://pkgs.tailscale.com/stable/ubuntu/{{ ansible_distribution_release }}.gpg"
+    keyring: /usr/share/keyrings/tailscale-achive-keyring.gpg
+
+- name: Add tailscale apt-repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/tailscale-achive-keyring.gpg] https://pkgs.tailscale.com/stable/ubuntu {{ ansible_distribution_release }} main"
+    filename: tailscale
+
+- name: Download signal apt gpg key
+  apt_key:
+    url: "https://updates.signal.org/desktop/apt/keys.asc"
+    keyring: /usr/share/keyrings/signal-achive-keyring.gpg
+
+- name: Add signal apt-repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/signal-achive-keyring.gpg] https://updates.signal.org/desktop/apt xenial main"
+    filename: signal
+
+- name: Download papirus apt gpg key
+  apt_key:
+    keyserver: keyserver.ubuntu.com
+    id: 9461999446FAF0DF770BFC9AE58A9D36647CAE7F
+    keyring: /usr/share/keyrings/papirus-achive-keyring.gpg
+
+- name: Add papirus apt-repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/papirus-achive-keyring.gpg] https://ppa.launchpadcontent.net/papirus/papirus/ubuntu impish main"
+    filename: papirus

@@ -1,0 +1,83 @@
+---
+- include_tasks: repos.yml
+
+- name: apt-get update
+  apt: update_cache=true
+
+- name: Install work packages
+  apt:
+    pkg:
+    - azure-cli
+    - consul-template
+    - gh
+    - git-crypt
+    - google-cloud-sdk
+    - teleport
+    - vault
+
+- name: Check if slack is installed
+  command: dpkg-query -W slack-desktop
+  register: slack_installed
+  failed_when: false
+  changed_when: false
+
+- name: Install slack package
+  apt:
+    deb: "https://downloads.slack-edge.com/releases/linux/{{slack_version}}/prod/x64/slack-desktop-{{slack_version}}-amd64.deb"
+  when: slack_installed.rc != 0
+
+- name: Check if keybase is installed
+  command: dpkg-query -W keybase
+  register: keybase_installed
+  failed_when: false
+  changed_when: false
+
+- name: Install keybase package
+  apt:
+    deb: "https://prerelease.keybase.io/keybase_amd64.deb"
+  when: keybase_installed.rc != 0
+
+- name: Install zoom flatpak
+  flatpak:
+    name: us.zoom.Zoom
+    method: user
+  become: false
+
+- name: Check if awscli is installed
+  stat:
+    path: /usr/local/bin/aws
+  register: aws_binary
+  failed_when: false
+  changed_when: false
+
+- block:
+    - name: Downloading awscli
+      unarchive:
+        src: https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip
+        dest: "/tmp"
+        remote_src: yes
+
+    - name: execute awscli install script
+      command: /tmp/aws/install
+
+    - name: Remove awscli install script
+      file: path=/tmp/aws state=absent
+  when: not aws_binary.stat.exists
+
+- name: Check if aviatrix is installed
+  stat:
+    path: /usr/bin/AVPNC
+  register: aviatrix_binary
+  failed_when: false
+  changed_when: false
+
+- name: Installing Aviatrix FIPS client
+  apt:
+    deb: https://aviatrix-download.s3-us-west-2.amazonaws.com/AviatrixVPNClient/dev/fips/AVPNC_debian_FIPS.deb
+  when: not aviatrix_binary.stat.exists
+
+- name: Install tfenv
+  git:
+    repo: https://github.com/tfutils/tfenv.git
+    dest: "{{ ansible_env.HOME }}/.tfenv"
+  become: false
