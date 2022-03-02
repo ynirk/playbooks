@@ -59,3 +59,13 @@
   apt_repository:
     repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/papirus-achive-keyring.gpg] https://ppa.launchpadcontent.net/papirus/papirus/ubuntu impish main"
     filename: papirus
+
+- name: Download github apt gpg key
+  apt_key:
+    url: "https://cli.github.com/packages/githubcli-archive-keyring.gpg"
+    keyring: /usr/share/keyrings/github-achive-keyring.gpg
+
+- name: Add github apt-repository
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/usr/share/keyrings/github-achive-keyring.gpg] https://cli.github.com/packages stable main"
+    filename: github

@@ -9,7 +9,6 @@
     pkg:
     - azure-cli
     - consul-template
-    - gh
     - git-crypt
     - google-cloud-sdk
     - teleport

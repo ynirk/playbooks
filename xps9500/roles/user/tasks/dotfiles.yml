@@ -38,6 +38,7 @@
   with_items:
     - arcticicestudio.nord-visual-studio-code
   changed_when: false
+  ignore_errors: true
 
 - name: Install vscode configuration
   copy:
