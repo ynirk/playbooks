@@ -1,3 +1,30 @@
+---
+- name: "Set gh git_protocol to SSH"
+  command: "gh config set git_protocol ssh"
+  changed_when: false
+
+- name: Check if oh-my-zsh is installed
+  stat:
+    path: "{{ ansible_env.HOME }}/.oh-my-zsh"
+  register: omz_dir
+  failed_when: false
+  changed_when: false
+
+- block:
+    - name: Downloading omz
+      get_url:
+        url: https://raw.github.com/ohmyzsh/ohmyzsh/master/tools/install.sh
+        dest: /tmp/omz-install.sh
+
+    - name: execute omz install script
+      script:
+        cmd: /tmp/omz-install.sh --keep-zshrc
+      become: false
+
+    - name: Remove omz install script
+      file: path=/tmp/omz-install.sh state=absent
+  when: not omz_dir.stat.exists
+
 - name: Set dotfiles dir
   set_fact:
     dotfiles_dir: '{{ ansible_env.HOME }}/projects/github.com/dotfiles'
@@ -6,16 +33,21 @@
   set_fact:
     config_dir: '{{ ansible_env.HOME }}/.config'
 
-- name: Clone dotfiles repo
-  git:
-    repo: https://github.com/ynirk/dotfiles
-    dest: '{{ dotfiles_dir }}'
+#- name: Clone dotfiles repo
+#  git:
+#    repo: https://github.com/ynirk/dotfiles
+#    dest: '{{ dotfiles_dir }}'
 
 - name: Copy pinentry script
   copy:
     src: '{{ dotfiles_dir }}/bin/pinentry.sh'
     dest: '/usr/local/bin'
-  become: true
+  become: yes
+
+- name: Create local directory
+  file:
+    path: '{{ ansible_env.HOME }}/.gnupg'
+    state: directory
 
 - name: Install gpg configuration files
   copy:
@@ -34,11 +66,6 @@
     src: '{{ dotfiles_dir }}/starship/starship.toml'
     dest: '{{ config_dir }}'
 
-- name: Install alacritty configuration
-  copy:
-    src: '{{ dotfiles_dir }}/alacritty'
-    dest: '{{ config_dir }}'
-
 - name: Install vscode extension
   shell: 'code --install-extension {{ item }}'
   with_items:
@@ -49,7 +76,7 @@
 - name: Install vscode configuration
   copy:
     src: '{{ dotfiles_dir }}/vscode/settings.json'
-    dest: '{{ config_dir }}/Code/User'
+    dest: '{{ ansible_env.HOME }}/Library/Application Support/Code/User/'
 
 - name: Check if vim-plug is installed
   stat:
@@ -85,10 +112,4 @@
     - .inputrc
     - .functions
     - .zshrc
-
-- name: Install applications files
-  copy:
-    src: '{{ dotfiles_dir }}/applications/{{ item }}'
-    dest: '{{ ansible_env.HOME }}/.local/share/applications'
-  with_items:
-    - com.alacritty.Alacritty.desktop
+    - .zshenv

@@ -1,0 +1,8 @@
+---
+- name: "Configuring MacOS on M1 macbook pro"
+  hosts: localhost
+  connection: local
+  roles:
+    - { role: homebreew, tags: [brew] }
+    - { role: osx-defaults, tags: [osx] }
+    - { role: user, tags: [user] }

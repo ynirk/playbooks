@@ -1,0 +1,9 @@
+- name: Install homebrew yubikey packages
+  homebrew:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - gnupg
+    - pinentry-mac
+    - ykman
+    - yubikey-personalization

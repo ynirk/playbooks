@@ -1,0 +1,58 @@
+---
+# General
+- name: General - Stop playing sound effects
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: com.apple.sound.uiaudio.enabled
+    type: int
+    value: 0
+    state: present
+
+- name: General - Disable Resume system-wide
+  osx_defaults:
+    domain: com.apple.systempreferences
+    key: NSQuitAlwaysKeepsWindows
+    type: bool
+    value: false
+    state: present
+
+- name: General - Disable automatic termination of inactive apps
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: NSDisableAutomaticTermination
+    type: bool
+    value: true
+    state: present
+
+- name: Dark mode - Dark mode
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: AppleInterfaceStyle
+    type: string
+    value: Dark
+    state: present
+
+- name: iCloud - Save to disk (not icloud) by default
+  osx_defaults:
+    domain: NSGlobalDomain
+    key: NSDocumentSaveNewDocumentsToCloud
+    type: bool
+    value: false
+    state: present
+
+# USB volumes
+- name: USB volumes - Avoid creating .DS_Store files on network volumes
+  osx_defaults:
+    domain: com.apple.desktopservices
+    key: DSDontWriteNetworkStores
+    type: bool
+    value: true
+    state: present
+
+- name: USB volumes - Avoid creating .DS_Store files on USB volumes
+  osx_defaults:
+    domain: com.apple.desktopservices
+    key: DSDontWriteUSBStores
+    type: bool
+    value: true
+    state: present

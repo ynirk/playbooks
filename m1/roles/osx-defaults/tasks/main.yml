@@ -1,0 +1,12 @@
+---
+- name: Setup general configuration
+  include: general.yml
+
+- name: Setup input methods
+  include: input.yml
+
+- name: Setup Dock
+  include: dock.yml
+
+- name: Setup Finder
+  include: finder.yml

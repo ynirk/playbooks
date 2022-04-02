@@ -1,0 +1,6 @@
+---
+- include_tasks: base.yml
+
+- include_tasks: cloud.yml
+
+- include_tasks: yubikey.yml

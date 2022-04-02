@@ -1,0 +1,47 @@
+---
+- name: Tap homebrew cask fonts
+  homebrew_tap:
+    name: homebrew/cask-fonts
+
+- name: Update and upgrade packages for Homebrew
+  homebrew:
+    update_homebrew: yes
+    upgrade_all: yes
+
+- name: Install homebrew cask packages
+  homebrew_cask:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - font-fira-code-nerd-font
+    - font-meslo-lg-nerd-font
+    - iina
+    - iterm2
+    - keybase
+    - rancher
+    - rectangle
+    - signal
+    - visual-studio-code
+
+- name: Install homebrew packages
+  homebrew:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - bat
+    - coreutils
+    - git
+    - gh
+    - fd
+    - fzf
+    - htop
+    - jq
+    - neovim
+    - nmap
+    - ripgrep
+    - starship
+    - tailscale
+    - tcpdump
+    - tree
+    - zsh-completions
+    - zoxide

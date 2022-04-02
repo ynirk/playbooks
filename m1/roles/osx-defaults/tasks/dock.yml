@@ -1,0 +1,64 @@
+---
+# Dock
+- name: Dock - Don’t automatically rearrange Spaces based on most recent use
+  osx_defaults:
+    domain: com.apple.dock
+    key: mru-spaces
+    type: bool
+    value: false
+    state: present
+  notify: killall dock
+
+- name: Dock - Automatically hide and show the Dock
+  osx_defaults:
+    domain: com.apple.dock
+    key: autohide
+    type: bool
+    value: true
+    state: present
+  notify: killall dock
+
+- name: Dock - Don’t show recent applications in Dock
+  osx_defaults:
+    domain: com.apple.dock
+    key: show-recents
+    type: bool
+    value: false
+    state: present
+  notify: killall dock
+
+- name: Dock - Set size of icons
+  osx_defaults:
+    domain: com.apple.dock
+    key: tilesize
+    type: int
+    value: 48
+    state: present
+  notify: killall dock
+
+- name: Dock - Enable highlight hover effect
+  osx_defaults:
+    domain: com.apple.dock
+    key: mouse-over-hilite-stack
+    type: bool
+    value: true
+    state: present
+  notify: killall dock
+
+- name: Dock - Hot corners
+  osx_defaults:
+    domain: com.apple.dock
+    key: wvous-tl-corner
+    type: int
+    value: 2 # Mission Control
+    state: present
+  notify: killall dock
+
+- name: Dock - Hot corners
+  osx_defaults:
+    domain: com.apple.dock
+    key: wvous-tl-modifier
+    type: int
+    value: 0
+    state: present
+  notify: killall dock
