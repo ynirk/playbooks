@@ -1,7 +1,10 @@
 ---
-- name: Tap homebrew cask fonts
+- name: Tap  repo
   homebrew_tap:
-    name: homebrew/cask-fonts
+    name: '{{ item }}'
+  with_items:
+    - homebrew/cask-fonts
+    - nextdns/tap
 
 - name: Update and upgrade packages for Homebrew
   homebrew:
@@ -37,6 +40,7 @@
     - htop
     - jq
     - neovim
+    - nextdns
     - nmap
     - ripgrep
     - starship

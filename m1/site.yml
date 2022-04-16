@@ -3,6 +3,6 @@
   hosts: localhost
   connection: local
   roles:
-    - { role: homebreew, tags: [brew] }
+    - { role: homebrew, tags: [brew] }
     - { role: osx-defaults, tags: [osx] }
     - { role: user, tags: [user] }
