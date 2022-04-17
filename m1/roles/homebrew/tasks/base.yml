@@ -38,6 +38,7 @@
     - fd
     - fzf
     - htop
+    - iproute2mac
     - jq
     - neovim
     - nextdns
