@@ -36,7 +36,9 @@
     - git
     - gh
     - fd
+    - findutils
     - fzf
+    - gnu-sed
     - htop
     - iproute2mac
     - jq
@@ -48,5 +50,6 @@
     - tailscale
     - tcpdump
     - tree
+    - wget
     - zsh-completions
     - zoxide
