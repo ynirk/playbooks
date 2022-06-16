@@ -70,6 +70,7 @@
   shell: 'code --install-extension {{ item }}'
   with_items:
     - arcticicestudio.nord-visual-studio-code
+    - golang.go
   changed_when: false
   ignore_errors: true
 
