@@ -71,6 +71,7 @@
   with_items:
     - arcticicestudio.nord-visual-studio-code
     - golang.go
+    - GitHub.vscode-pull-request-github
   changed_when: false
   ignore_errors: true
 
