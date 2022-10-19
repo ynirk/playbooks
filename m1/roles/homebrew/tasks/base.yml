@@ -48,7 +48,6 @@
     - nmap
     - ripgrep
     - starship
-    - tailscale
     - tcpdump
     - tree
     - wget
