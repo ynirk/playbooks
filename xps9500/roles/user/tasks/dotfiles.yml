@@ -11,23 +11,26 @@
     repo: https://github.com/ynirk/dotfiles
     dest: '{{ dotfiles_dir }}'
 
-- name: Copy pinentry script
-  copy:
-    src: '{{ dotfiles_dir }}/bin/pinentry.sh'
-    dest: '/usr/local/bin'
-  become: true
+- name: set gpg yubikeys
+  block:
+    - name: Copy pinentry script
+      copy:
+        src: '{{ dotfiles_dir }}/bin/pinentry.sh'
+        dest: '/usr/local/bin'
+      become: true
 
-- name: Install gpg configuration files
-  copy:
-    src: '{{ dotfiles_dir }}/gnupg/{{ item }}'
-    dest: '{{ ansible_env.HOME }}/.gnupg'
-  with_items:
-    - gpg-agent.conf
-    - gpg.conf
+    - name: Install gpg configuration files
+      copy:
+        src: '{{ dotfiles_dir }}/gnupg/{{ item }}'
+        dest: '{{ ansible_env.HOME }}/.gnupg'
+      with_items:
+        - gpg-agent.conf
+        - gpg.conf
 
-- name: Install ynirk pgp key
-  shell: "curl https://keybase.io/ynirk/pgp_keys.asc | gpg --import"
-  changed_when: false
+    - name: Install ynirk pgp key
+      shell: "curl https://keybase.io/ynirk/pgp_keys.asc | gpg --import"
+      changed_when: false
+  tags: gpg
 
 - name: Install starship configuration
   copy:

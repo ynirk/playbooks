@@ -23,8 +23,6 @@
     - gh
     - google-chrome-stable
     - gnome-tweaks
-    - gnupg2
-    - gnupg-agent
     - htop
     - iwd
     - jq
@@ -36,11 +34,9 @@
     - nmap
     - papirus-icon-theme
     - pciutils
-    - pinentry-gnome3
     - powertop
     - ripgrep
     - tree
-    - scdaemon
     - signal-desktop
     - sslscan
     - tailscale
@@ -53,6 +49,15 @@
     - yubikey-personalization-gui
     - zoxide
     - zsh
+
+- name: Install gpg packages
+  apt:
+    pkg:
+    - gnupg2
+    - gnupg-agent
+    - pinentry-gnome3
+    - scdaemon
+  tags: gpg
 
 - name: Check if starship is installed
   stat:
