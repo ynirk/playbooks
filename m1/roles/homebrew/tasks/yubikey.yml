@@ -1,3 +1,20 @@
+---
+- name: Tap repo
+  homebrew_tap:
+    name: '{{ item }}'
+  with_items:
+    - homebrew/cask-drivers
+  when: "'gpg' not in ansible_run_tags"
+
+- name: Install homebrew yubikey packages
+  homebrew:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - openssh
+    - yubico-yubikey-manager
+  when: "'gpg' not in ansible_run_tags"
+
 - name: Install homebrew yubikey packages
   homebrew:
     name: "{{ item }}"
@@ -7,3 +24,4 @@
     - pinentry-mac
     - ykman
     - yubikey-personalization
+  tags: gpg
