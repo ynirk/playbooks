@@ -12,7 +12,7 @@
     state: present
   with_items:
     - openssh
-    - yubico-yubikey-manager
+#    - yubico-yubikey-manager
   when: "'gpg' not in ansible_run_tags"
 
 - name: Install homebrew yubikey packages

@@ -56,3 +56,25 @@
     type: bool
     value: true
     state: present
+
+# screenshots
+- name: Create screenshots directory
+  file:
+    path: '{{ ansible_env.HOME }}/Pictures/Screenshots'
+    state: directory
+
+- name: Screenshots - Save to screnshots directory
+  osx_defaults:
+    domain: com.apple.screencapture
+    key: location
+    type: string
+    value: '{{ ansible_env.HOME }}/Pictures/Screenshots'
+    state: present
+
+- name: Screenshots - Save to png
+  osx_defaults:
+    domain: com.apple.screencapture
+    key: type
+    type: string
+    value: 'png'
+    state: present
