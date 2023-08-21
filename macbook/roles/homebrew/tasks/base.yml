@@ -46,6 +46,7 @@
     - neovim
     - nextdns
     - nmap
+    - openssh
     - ripgrep
     - starship
     - tcpdump

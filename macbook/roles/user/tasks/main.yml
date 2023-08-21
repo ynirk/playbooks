@@ -38,32 +38,6 @@
 #    repo: https://github.com/ynirk/dotfiles
 #    dest: '{{ dotfiles_dir }}'
 
-- name: set gpg yubikeys
-  block:
-    - name: Copy pinentry script
-      copy:
-        src: '{{ dotfiles_dir }}/bin/pinentry.sh'
-        dest: '/usr/local/bin'
-      become: yes
-
-    - name: Create local directory
-      file:
-        path: '{{ ansible_env.HOME }}/.gnupg'
-        state: directory
-
-    - name: Install gpg configuration files
-      copy:
-        src: '{{ dotfiles_dir }}/gnupg/{{ item }}'
-        dest: '{{ ansible_env.HOME }}/.gnupg'
-      with_items:
-        - gpg-agent.conf
-        - gpg.conf
-
-    - name: Install ynirk pgp key
-      shell: "curl https://keybase.io/ynirk/pgp_keys.asc | gpg --import"
-      changed_when: false
-  tags: gpg
-
 - name: Install starship configuration
   copy:
     src: '{{ dotfiles_dir }}/starship/starship.toml'
@@ -119,6 +93,31 @@
     - .zshrc
     - .zshenv
 
+- name: iterm - set custom backup directory
+  osx_defaults:
+    domain: com.googlecode.iterm2
+    key: PrefsCustomFolder
+    type: string
+    value: '{{ dotfiles_dir }}/iterm'
+    state: present
+
+- name: iterm - use custom backup directory
+  osx_defaults:
+    domain: com.googlecode.iterm2
+    key: LoadPrefsFromCustomFolder
+    type: bool
+    value: true
+    state: present
+
+- name: iterm - automatic backup
+  osx_defaults:
+    domain: com.googlecode.iterm2
+    key: NoSyncNeverRemindPrefsChangesLostForFile_selection
+    type: int
+    value: 2
+    state: present
+
 - name: Remap UK ±/§ key to US `~
   shell: "hidutil property --set '{\"UserKeyMapping\":[{\"HIDKeyboardModifierMappingSrc\":0x700000064,\"HIDKeyboardModifierMappingDst\":0x700000035}]}'"
   changed_when: false
+  tags: [never, remap]

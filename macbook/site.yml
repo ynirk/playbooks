@@ -6,3 +6,4 @@
     - { role: homebrew, tags: [brew] }
     - { role: osx-defaults, tags: [osx] }
     - { role: user, tags: [user] }
+    - { role: yubikey, tags: [never, gpg] }

@@ -1,0 +1,37 @@
+---
+- name: Install homebrew yubikey packages
+  homebrew:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - gnupg
+    - pinentry-mac
+    - ykman
+    - yubikey-personalization
+  tags: gpg
+
+- name: set gpg yubikeys
+  block:
+    - name: Copy pinentry script
+      copy:
+        src: '{{ dotfiles_dir }}/bin/pinentry.sh'
+        dest: '/usr/local/bin'
+      become: yes
+
+    - name: Create local directory
+      file:
+        path: '{{ ansible_env.HOME }}/.gnupg'
+        state: directory
+
+    - name: Install gpg configuration files
+      copy:
+        src: '{{ dotfiles_dir }}/gnupg/{{ item }}'
+        dest: '{{ ansible_env.HOME }}/.gnupg'
+      with_items:
+        - gpg-agent.conf
+        - gpg.conf
+
+    - name: Install ynirk pgp key
+      shell: "curl https://keybase.io/ynirk/pgp_keys.asc | gpg --import"
+      changed_when: false
+  tags: gpg
