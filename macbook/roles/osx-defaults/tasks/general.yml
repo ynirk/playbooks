@@ -40,6 +40,15 @@
     value: false
     state: present
 
+- name: Show battery percentage
+  osx_defaults:
+    domain: com.apple.controlcenter.plist
+    host: currentHost
+    key: BatteryShowPercentage
+    type: bool
+    value: true
+    state: present
+
 # USB volumes
 - name: USB volumes - Avoid creating .DS_Store files on network volumes
   osx_defaults:
